@@ -1,11 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ro.rs.findjar4class.gui;
 
-import java.awt.Container;
+/**
+ *
+ * @author remussino
+ */
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,11 +21,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.jdesktop.layout.GroupLayout;
-import org.jdesktop.layout.GroupLayout.ParallelGroup;
-import org.jdesktop.layout.GroupLayout.SequentialGroup;
 import ro.rs.findjar4class.logic.IndexLibFolder;
 import ro.rs.findjar4class.util.Utils;
 
@@ -108,6 +103,7 @@ public class Find
                 for (String key : this.indexMap.keySet()) {
                     if (key.contains(findWhat)) {
                         jarName = (String) this.indexMap.get(key);
+                        this.findWhatTextField.setText(key);
                         break;
                     }
                 }

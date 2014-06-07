@@ -7,7 +7,7 @@ package ro.rs.findjar4class.logic;
 
 /**
  *
- * @author rsinorchian
+ * @author remussino
  */
 import java.io.File;
 import java.io.FileInputStream;

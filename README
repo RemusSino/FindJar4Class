@@ -29,5 +29,5 @@ and wait a little more, until the directory structure is indexed and the index f
 the jars under a new directory.
 Also, notice that a new file was created named 'indexFile.txt' which contains a mapping for every class with its enclosing jar.
 
-Then you can type in the 'Find what' text area, the name of the class (including the package) and you will get the absolute path for the jar
+Then you can type in the 'Find what' text area, the name of the class (you can omit the package) and you will get the absolute path for the jar
 file that contains it.
