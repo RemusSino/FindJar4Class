@@ -1,33 +1,36 @@
 *****
-Author: remussino
-Version: #1
-Date: 03.06.2014
+Author: remus.sinorchian
+Version: #2
+Last update: 08.08.2015
 *****
 
 ===SHORT DESCRIPTION===
 
-This is a simple Java Swing application which helps you find the jar file(recursive search in a tree directory structure) name in which a given class resides.
+This is a simple Java Swing application which helps you find the jar file name in which a given class resides.
 It is useful if you have a library with jars and want to know in which one is your class.
-It is faster than other search tools for this particular problem, because it creates an index file after the first search.
+It is faster than other search tools for this particular problem, because it creates an index file after the first search. Also it is implemented with multi thread support.
 
 ===PREREQUISITES===
 Before installing and running it, make sure you have the following installed on your environment:
-- Java JDK and JRE 1.7 
+- Java JDK and JRE 1.8
 - MAVEN
 
 ===INSTALLATION===
-After downloading the source code, go to that folder in command line and execute the following:
-'mvn install' (without the quotes)
+After downloading the source code, go to that folder in command line and execute the following command:
+mvn install
 
 ===RUNNING===
 After installing, you should notice a new folder in the same path, named 'target'. 
-Go in that directory and double click on the 'FindJar4Class-1.0-SNAPSHOT-jar-with-dependencies.jar' file.
+Go in that directory and double click on the 'FindJar4Class-2.0-jar-with-dependencies.jar' file.
 
-In the new window that appeared, put in the 'Lib folder' text area, the path to your folder with jars. Then press 'Load index from lib folder' 
-and wait a little more, until the directory structure is indexed and the index file is created. After this first indexing, don't press on the 
-'Load index from lib folder' unless you don't change something in that directory structure(add or delete jars under it) or you want to index 
+In the new window that appeared, put in the 'Jars folder' text area, the path to your directory structure under which you have the jars or folders with jars. Then press 'Index jars' 
+and wait a little, until the directory structure is indexed and the index file is created (indexFile.txt will be generated). After this first indexing, don't press on the 
+'Index jars' unless you change something in that directory structure(add or delete jars under it) or you want to index 
 the jars under a new directory.
-Also, notice that a new file was created named 'indexFile.txt' which contains a mapping for every class with its enclosing jar.
+Also, notice that the newly created file 'indexFile.txt' which contains a mapping for every class with its enclosing jar.
 
-Then you can type in the 'Find what' text area, the name of the class (you can omit the package) and you will get the absolute path for the jar
-file that contains it.
+Then you can search by typing in the 'Class name' and clicking "Search class". The search is case sensitive; for input you can provide:
+- just the class name : this will return the occurrence of that specific class
+- the fully qualified name (includes the package and the class name) : this will return the occurrence of the fully qualified name
+- a wild card like "File*" : this will return all occurrences that start with the string "File"
+- a wild card like "*Stream" : this will return all occurrences that end with the string "Stream"

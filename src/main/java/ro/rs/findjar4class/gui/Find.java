@@ -177,8 +177,7 @@ public class Find extends javax.swing.JFrame {
         if (libFolder == null) {
             JOptionPane.showMessageDialog(null, "Enter path for lib folder");
         }
-        
-        
+
         this.indexMap = this.finder.indexClasses(Paths.get(libFolder));
 
         File indexFile = new File(outputIndexFile);
@@ -212,7 +211,8 @@ public class Find extends javax.swing.JFrame {
 
     public void findClass() {
         String findWhat = this.classNameTextField.getText();
-
+        listModel.clear();
+        
         if (!findWhat.isEmpty()) {
             if (findWhat.contains(".")) {
                 findClassByFullyQualifiedName(findWhat);
@@ -240,11 +240,16 @@ public class Find extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Load index file first");
         }
 
-        if (!wildCard.contains(".") && wildCard.lastIndexOf("*") == wildCard.length() - 1) {
+        if (!wildCard.contains(".") && wildCard.endsWith("*")) {
             String className = wildCard.substring(0, wildCard.length() - 1);
             String jarName = null;
 
-            this.indexMap.entrySet().parallelStream().filter(e -> e.getKey().contains(className)).forEach(e -> listModel.addElement(e.getKey() + " - " + e.getValue()));
+            this.indexMap.entrySet().parallelStream().filter(e -> Utils.getClassNameFromFullyQualifiedName(e.getKey()).startsWith(className)).forEach(e -> listModel.addElement(e.getKey() + " - " + e.getValue()));
+        } else if (!wildCard.contains(".") && wildCard.startsWith("*")) {
+            String className = wildCard.substring(1);
+            String jarName = null;
+
+            this.indexMap.entrySet().parallelStream().filter(e -> Utils.getClassNameFromFullyQualifiedName(e.getKey()).endsWith(className)).forEach(e -> listModel.addElement(e.getKey() + " - " + e.getValue()));
         }
     }
 
