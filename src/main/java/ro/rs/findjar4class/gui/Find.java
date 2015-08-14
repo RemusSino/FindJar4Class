@@ -5,20 +5,14 @@
  */
 package ro.rs.findjar4class.gui;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
-import ro.rs.findjar4class.logic.IndexLibFolder;
+import ro.rs.findjar4class.logic.ClassFinder;
+import ro.rs.findjar4class.logic.FileIndexer;
 import ro.rs.findjar4class.util.Utils;
 
 /**
@@ -27,10 +21,8 @@ import ro.rs.findjar4class.util.Utils;
  */
 public class Find extends javax.swing.JFrame {
 
-    public final IndexLibFolder finder = new IndexLibFolder();
-    public final String outputIndexFile = "indexFile.txt";
-    public Map<String, String> indexMap;
-    public Map<String, String> shortcutIndexMap;
+    private final FileIndexer fileIndexer = FileIndexer.getInstance();
+    private final ClassFinder classFinder;
     private List<String> results;
     private String previousSearch;
     private int sameSearchCounter = 0;
@@ -43,7 +35,8 @@ public class Find extends javax.swing.JFrame {
         initComponents();
         this.listModel = new DefaultListModel();
         this.resultList.setModel(this.listModel);
-        loadExistingIndexFile();
+        classFinder = new ClassFinder(listModel);
+        fileIndexer.loadExistingIndex();
     }
 
     /**
@@ -159,112 +152,17 @@ public class Find extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jarFolderTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jarFolderTextFieldActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_jarFolderTextFieldActionPerformed
 
     private void indexJarsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_indexJarsActionPerformed
-        // TODO add your handling code here:
-        loadIndexFile();
+        FileIndexer.IndexerThread indexerThread = this.fileIndexer.new IndexerThread(jarFolderTextField);
+        indexerThread.start();
     }//GEN-LAST:event_indexJarsActionPerformed
 
     private void searchClassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchClassActionPerformed
-        // TODO add your handling code here:
-        findClass();
-    }//GEN-LAST:event_searchClassActionPerformed
-
-    private void loadIndexFile() {
-        String libFolder = this.jarFolderTextField.getText();
-        if (libFolder == null) {
-            JOptionPane.showMessageDialog(null, "Enter path for lib folder");
-        }
-
-        this.indexMap = this.finder.indexClasses(Paths.get(libFolder));
-
-        File indexFile = new File(outputIndexFile);
-        this.finder.outputIndexToFile(indexFile);
-        if ((indexFile.exists()) && (!Utils.fileIsEmpty(indexFile))) {
-            this.jarFolderTextField.setText("Index file loaded");
-        }
-    }
-
-    private void loadExistingIndexFile() {
-        File indexFile = new File(outputIndexFile);
-
-        if (indexFile.exists() && indexFile.length() != 0) {
-            this.indexMap = new LinkedHashMap();
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(indexFile));
-                String line;
-                while ((line = br.readLine()) != null) {
-                    int indexOfDelimiter = line.indexOf(":");
-                    String className = line.substring(0, indexOfDelimiter);
-                    String jarName = line.substring(indexOfDelimiter + 1);
-                    this.indexMap.put(className, jarName);
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(Find.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            this.jarFolderTextField.setText("Index loaded from existing file");
-        }
-    }
-
-    public void findClass() {
         String findWhat = this.classNameTextField.getText();
-        listModel.clear();
-        
-        if (!findWhat.isEmpty()) {
-            if (findWhat.contains(".")) {
-                findClassByFullyQualifiedName(findWhat);
-            } else if (findWhat.contains("*")) {
-                findClassByWildCard(findWhat);
-            } else {
-                findClassByClassName(findWhat);
-            }
-
-//            this.findWhatTextField.setText(Utils.getClassNameFromResultMap(resultList.get(sameSearchCounter)));
-        }
-    }
-
-    public void findClassByClassName(String className) {
-        if (this.indexMap.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Load index file first");
-        }
-
-        Predicate<String> matchesClassName = s -> s.contains(className) && Utils.getClassNameFromFullyQualifiedName(s).equalsIgnoreCase(className);
-        this.indexMap.entrySet().parallelStream().filter(e -> matchesClassName.test(e.getKey())).forEach(e -> listModel.addElement(e.getKey() + " - " + e.getValue()));
-    }
-
-    public void findClassByWildCard(String wildCard) {
-        if (this.indexMap.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Load index file first");
-        }
-
-        if (!wildCard.contains(".") && wildCard.endsWith("*")) {
-            String className = wildCard.substring(0, wildCard.length() - 1);
-            String jarName = null;
-
-            this.indexMap.entrySet().parallelStream().filter(e -> Utils.getClassNameFromFullyQualifiedName(e.getKey()).startsWith(className)).forEach(e -> listModel.addElement(e.getKey() + " - " + e.getValue()));
-        } else if (!wildCard.contains(".") && wildCard.startsWith("*")) {
-            String className = wildCard.substring(1);
-            String jarName = null;
-
-            this.indexMap.entrySet().parallelStream().filter(e -> Utils.getClassNameFromFullyQualifiedName(e.getKey()).endsWith(className)).forEach(e -> listModel.addElement(e.getKey() + " - " + e.getValue()));
-        }
-    }
-
-    public void findClassByFullyQualifiedName(String fullyQualifiedClassName) {
-        if (this.indexMap.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Load index file first");
-        }
-
-        String jarName = (String) this.indexMap.get(fullyQualifiedClassName);
-
-        if (!jarName.isEmpty()) {
-            listModel.addElement(fullyQualifiedClassName + " - " + jarName);
-        }
-    }
-
+        classFinder.findClass(findWhat);
+    }//GEN-LAST:event_searchClassActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField classNameTextField;
